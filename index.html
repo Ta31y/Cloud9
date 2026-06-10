@@ -1,0 +1,615 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Cloud9 VR Experience</title>
+
+    <script src="https://aframe.io/releases/1.7.0/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/aframe-extras@7.5.4/dist/aframe-extras.min.js"></script>
+    <script src="https://unpkg.com/aframe-troika-text/dist/aframe-troika-text.min.js"></script>
+
+    <script>
+      let releasedClouds = 0;
+
+      AFRAME.registerComponent("release-cloud", {
+        schema: {
+          message: { type: "string" },
+        },
+
+        init: function () {
+          this.el.addEventListener("click", () => {
+            if (this.el.getAttribute("visible") === false) return;
+
+            releasedClouds++;
+
+            const instructionText = document.querySelector("#experienceText");
+            instructionText.setAttribute("value", this.data.message);
+
+            this.el.setAttribute(
+              "animation__fade",
+              "property: scale; to: 0 0 0; dur: 800",
+            );
+            setTimeout(() => {
+              this.el.setAttribute("visible", false);
+            }, 800);
+
+            if (releasedClouds === 4) {
+              setTimeout(() => {
+                document
+                  .querySelector("#finalMessage")
+                  .setAttribute("visible", true);
+                instructionText.setAttribute(
+                  "value",
+                  "You have let go. Welcome to Cloud9.",
+                );
+              }, 900);
+            }
+          });
+        },
+      });
+
+      document.addEventListener("click", function () {
+        const soundEntity = document.querySelector("[sound]");
+        if (soundEntity && soundEntity.components.sound) {
+          soundEntity.components.sound.playSound();
+        }
+      });
+    </script>
+  </head>
+
+  <body>
+    <a-scene fog="type: linear; color: #B8E7FF; near: 15; far: 250">
+      <a-assets>
+        <a-asset-item id="cloud" src="models/cloud.glb"></a-asset-item>
+        <a-asset-item
+          id="dubaiClouds"
+          src="models/dubai_clouds.glb"
+        ></a-asset-item>
+        <a-asset-item id="cloudTest" src="models/cloud_test.glb"></a-asset-item>
+        <img id="logo" src="images/logo.png" />
+        <audio
+          id="windAudio"
+          src="audio/wind.mp4"
+          preload="auto"
+          loop="true"
+        ></audio>
+      </a-assets>
+
+      <a-sky color="#B8E7FF"></a-sky>
+
+      <a-entity light="type: ambient; intensity: 1.6"></a-entity>
+      <a-entity
+        light="type: directional; intensity: 0.8"
+        position="5 10 5"
+      ></a-entity>
+
+      <a-entity
+        id="rig"
+        movement-controls="fly: true; speed: 0.2"
+        position="0 2 8"
+      >
+        <a-camera>
+          <a-cursor
+            color="white"
+            fuse="true"
+            fuse-timeout="1000"
+            raycaster="objects: .clickable"
+          >
+          </a-cursor>
+        </a-camera>
+
+        <a-entity
+          meta-touch-controls="hand: left"
+          laser-controls="hand: left"
+          raycaster="objects: .clickable"
+        >
+        </a-entity>
+
+        <a-entity
+          meta-touch-controls="hand: right"
+          laser-controls="hand: right"
+          raycaster="objects: .clickable"
+        >
+        </a-entity>
+      </a-entity>
+
+      <a-entity
+        sound="src: #windAudio; autoplay: false; loop: true; volume: 1"
+      ></a-entity>
+
+      <a-circle
+        position="0 -0.3 -60"
+        rotation="-90 0 0"
+        radius="150"
+        color="#37b7fa"
+      >
+      </a-circle>
+
+      <!-- CLOUD9 LOGO -->
+      <a-plane
+        src="#logo"
+        position="0 5.4 -13"
+        width="9"
+        height="4.5"
+        material="transparent: true; alphaTest: 0.5; side: double"
+        animation="property: position; to: 0 5.8 -13; dur: 5000; loop: true; dir: alternate"
+      >
+      </a-plane>
+
+      <!-- EXPERIENCE TEXT -->
+      <a-entity
+        troika-text="value: Touch the clouds and let go of what weighs you down.; 
+               font: fonts/Atop.ttf; 
+               color: #FFFFFF; 
+               fontSize: 0.7; 
+               maxWidth: 10; 
+               align: center;"
+        position="0 2.5 -13"
+      >
+      </a-entity>
+
+      <!-- FINAL MESSAGE -->
+      <a-text
+        id="finalMessage"
+        value="You are now on Cloud9."
+        position="-4 12 -160"
+        color="#FFFFFF"
+        width="7"
+        visible="false"
+      >
+      </a-text>
+
+      <!-- INTERACTIVE MEMORY CLOUDS -->
+      <a-entity
+        class="clickable"
+        release-cloud="message: Stress floats away."
+        position="-20 4 -25"
+      >
+        <a-gltf-model
+          src="#cloud"
+          scale="1.4 1.4 1.4"
+          rotation="0 80 0"
+        ></a-gltf-model>
+        <a-text
+          value="Stress"
+          position="-0.8 1.2 0"
+          color="#000000"
+          width="20"
+        ></a-text>
+      </a-entity>
+
+      <a-entity
+        class="clickable"
+        release-cloud="message: Worry fades into the sky."
+        position="20 4 -25"
+      >
+        <a-gltf-model
+          src="#cloudTest"
+          scale="1.4 1.4 1.4"
+          rotation="0 180 0"
+        ></a-gltf-model>
+        <a-text
+          value="Worry"
+          position="-0.8 1.2 0"
+          color="#000000"
+          width="20"
+        ></a-text>
+      </a-entity>
+
+      <a-entity
+        class="clickable"
+        release-cloud="message: Pressure disappears."
+        position="-20 8 -50"
+      >
+        <a-gltf-model
+          src="#cloud"
+          scale="1.5 1.5 1.5"
+          rotation="0 260 0"
+        ></a-gltf-model>
+        <a-text
+          value="Pressure"
+          position="-1.1 1.2 0"
+          color="#000000"
+          width="20"
+        ></a-text>
+      </a-entity>
+
+      <a-entity
+        class="clickable"
+        release-cloud="message: Expectations become lighter."
+        position="20 8 -50"
+      >
+        <a-gltf-model
+          src="#cloudTest"
+          scale="1.5 1.5 1.5"
+          rotation="0 320 0"
+        ></a-gltf-model>
+        <a-text
+          value="Expectations"
+          position="-1.6 1.2 0"
+          color="#000000"
+          width="20"
+        ></a-text>
+      </a-entity>
+
+      <!-- KEEP YOUR BACKGROUND CLOUD WORLD -->
+      <a-gltf-model
+        src="#cloud"
+        position="-25 4 -30"
+        scale="1.8 1.8 1.8"
+        rotation="0 30 0"
+      ></a-gltf-model>
+      <a-gltf-model
+        src="#cloudTest"
+        position="-12 5 -35"
+        scale="1.8 1.8 1.8"
+        rotation="0 120 0"
+      ></a-gltf-model>
+      <a-gltf-model
+        src="#cloud"
+        position="-35 5 -45"
+        scale="2 2 2"
+        rotation="0 220 0"
+      ></a-gltf-model>
+      <a-gltf-model
+        src="#cloudTest"
+        position="-20 6 -55"
+        scale="2 2 2"
+        rotation="0 310 0"
+      ></a-gltf-model>
+      <a-gltf-model
+        src="#cloud"
+        position="-45 6 -65"
+        scale="2.2 2.2 2.2"
+        rotation="0 80 0"
+      ></a-gltf-model>
+      <a-gltf-model
+        src="#cloud"
+        position="-32 4.5 -38"
+        scale="1.7 1.7 1.7"
+        rotation="0 180 0"
+      ></a-gltf-model>
+      <a-gltf-model
+        src="#cloudTest"
+        position="-42 5.5 -52"
+        scale="1.9 1.9 1.9"
+        rotation="0 260 0"
+      ></a-gltf-model>
+      <a-gltf-model
+        src="#cloud"
+        position="-55 7 -75"
+        scale="2.3 2.3 2.3"
+        rotation="0 40 0"
+      ></a-gltf-model>
+      <a-gltf-model
+        src="#cloud"
+        position="-60 5 -50"
+        scale="2.2 2.2 2.2"
+        rotation="0 90 0"
+      ></a-gltf-model>
+      <a-gltf-model
+        src="#cloudTest"
+        position="-70 6 -70"
+        scale="2.4 2.4 2.4"
+        rotation="0 180 0"
+      ></a-gltf-model>
+
+      <a-gltf-model
+        src="#cloudTest"
+        position="25 4 -32"
+        scale="1.8 1.8 1.8"
+        rotation="0 60 0"
+      ></a-gltf-model>
+      <a-gltf-model
+        src="#cloud"
+        position="12 5 -38"
+        scale="1.8 1.8 1.8"
+        rotation="0 160 0"
+      ></a-gltf-model>
+      <a-gltf-model
+        src="#cloudTest"
+        position="35 5 -48"
+        scale="2 2 2"
+        rotation="0 250 0"
+      ></a-gltf-model>
+      <a-gltf-model
+        src="#cloud"
+        position="20 6 -58"
+        scale="2 2 2"
+        rotation="0 340 0"
+      ></a-gltf-model>
+      <a-gltf-model
+        src="#cloudTest"
+        position="45 6 -70"
+        scale="2.2 2.2 2.2"
+        rotation="0 100 0"
+      ></a-gltf-model>
+      <a-gltf-model
+        src="#cloud"
+        position="32 4.5 -40"
+        scale="1.7 1.7 1.7"
+        rotation="0 210 0"
+      ></a-gltf-model>
+      <a-gltf-model
+        src="#cloudTest"
+        position="42 5.5 -55"
+        scale="1.9 1.9 1.9"
+        rotation="0 20 0"
+      ></a-gltf-model>
+      <a-gltf-model
+        src="#cloud"
+        position="55 7 -78"
+        scale="2.3 2.3 2.3"
+        rotation="0 130 0"
+      ></a-gltf-model>
+      <a-gltf-model
+        src="#cloud"
+        position="60 5 -50"
+        scale="2.2 2.2 2.2"
+        rotation="0 230 0"
+      ></a-gltf-model>
+      <a-gltf-model
+        src="#cloudTest"
+        position="70 6 -70"
+        scale="2.4 2.4 2.4"
+        rotation="0 300 0"
+      ></a-gltf-model>
+
+      <a-gltf-model
+        src="#cloud"
+        position="0 5 -35"
+        scale="1.8 1.8 1.8"
+        rotation="0 50 0"
+      ></a-gltf-model>
+      <a-gltf-model
+        src="#cloudTest"
+        position="-5 6 -50"
+        scale="2 2 2"
+        rotation="0 170 0"
+      ></a-gltf-model>
+      <a-gltf-model
+        src="#cloud"
+        position="7 6 -65"
+        scale="2.2 2.2 2.2"
+        rotation="0 290 0"
+      ></a-gltf-model>
+      <a-gltf-model
+        src="#cloudTest"
+        position="-8 7 -80"
+        scale="2.4 2.4 2.4"
+        rotation="0 40 0"
+      ></a-gltf-model>
+      <a-gltf-model
+        src="#cloud"
+        position="5 8 -95"
+        scale="2.6 2.6 2.6"
+        rotation="0 210 0"
+      ></a-gltf-model>
+      <a-gltf-model
+        src="#cloud"
+        position="3 5.5 -45"
+        scale="1.7 1.7 1.7"
+        rotation="0 110 0"
+      ></a-gltf-model>
+      <a-gltf-model
+        src="#cloudTest"
+        position="-3 6.5 -60"
+        scale="2 2 2"
+        rotation="0 260 0"
+      ></a-gltf-model>
+      <a-gltf-model
+        src="#cloud"
+        position="0 7.5 -75"
+        scale="2.4 2.4 2.4"
+        rotation="0 320 0"
+      ></a-gltf-model>
+      <a-gltf-model
+        src="#cloud"
+        position="-15 7 -90"
+        scale="2.6 2.6 2.6"
+        rotation="0 140 0"
+      ></a-gltf-model>
+      <a-gltf-model
+        src="#cloudTest"
+        position="15 7 -90"
+        scale="2.6 2.6 2.6"
+        rotation="0 240 0"
+      ></a-gltf-model>
+
+      <a-gltf-model
+        src="#cloud"
+        position="-12 12 -25"
+        scale="1.8 1.8 1.8"
+        rotation="0 70 0"
+      ></a-gltf-model>
+      <a-gltf-model
+        src="#cloudTest"
+        position="12 13 -35"
+        scale="2 2 2"
+        rotation="0 180 0"
+      ></a-gltf-model>
+      <a-gltf-model
+        src="#cloud"
+        position="-25 14 -50"
+        scale="2.2 2.2 2.2"
+        rotation="0 260 0"
+      ></a-gltf-model>
+      <a-gltf-model
+        src="#cloudTest"
+        position="25 15 -60"
+        scale="2.2 2.2 2.2"
+        rotation="0 330 0"
+      ></a-gltf-model>
+      <a-gltf-model
+        src="#cloud"
+        position="0 16 -75"
+        scale="2.5 2.5 2.5"
+        rotation="0 120 0"
+      ></a-gltf-model>
+      <a-gltf-model
+        src="#cloud"
+        position="-35 17 -85"
+        scale="2.6 2.6 2.6"
+        rotation="0 210 0"
+      ></a-gltf-model>
+      <a-gltf-model
+        src="#cloudTest"
+        position="35 17 -90"
+        scale="2.6 2.6 2.6"
+        rotation="0 40 0"
+      ></a-gltf-model>
+      <a-gltf-model
+        src="#cloud"
+        position="-55 18 -110"
+        scale="3 3 3"
+        rotation="0 80 0"
+      ></a-gltf-model>
+      <a-gltf-model
+        src="#cloudTest"
+        position="55 18 -110"
+        scale="3 3 3"
+        rotation="0 180 0"
+      ></a-gltf-model>
+      <a-gltf-model
+        src="#cloud"
+        position="0 20 -125"
+        scale="3.2 3.2 3.2"
+        rotation="0 270 0"
+      ></a-gltf-model>
+
+      <a-gltf-model
+        src="#cloud"
+        position="-18 0.2 -25"
+        scale="2.4 0.8 2.4"
+        rotation="0 20 0"
+      ></a-gltf-model>
+      <a-gltf-model
+        src="#cloudTest"
+        position="18 0.2 -30"
+        scale="2.4 0.8 2.4"
+        rotation="0 120 0"
+      ></a-gltf-model>
+      <a-gltf-model
+        src="#cloud"
+        position="0 0.2 -45"
+        scale="3 0.9 3"
+        rotation="0 200 0"
+      ></a-gltf-model>
+      <a-gltf-model
+        src="#cloudTest"
+        position="-30 0.2 -60"
+        scale="3 0.9 3"
+        rotation="0 300 0"
+      ></a-gltf-model>
+      <a-gltf-model
+        src="#cloud"
+        position="30 0.2 -70"
+        scale="3 0.9 3"
+        rotation="0 80 0"
+      ></a-gltf-model>
+      <a-gltf-model
+        src="#cloud"
+        position="-50 0.2 -90"
+        scale="3.2 0.9 3.2"
+        rotation="0 160 0"
+      ></a-gltf-model>
+      <a-gltf-model
+        src="#cloudTest"
+        position="50 0.2 -95"
+        scale="3.2 0.9 3.2"
+        rotation="0 260 0"
+      ></a-gltf-model>
+      <a-gltf-model
+        src="#cloud"
+        position="-75 0.2 -115"
+        scale="3.5 0.9 3.5"
+        rotation="0 100 0"
+      ></a-gltf-model>
+      <a-gltf-model
+        src="#cloudTest"
+        position="75 0.2 -115"
+        scale="3.5 0.9 3.5"
+        rotation="0 300 0"
+      ></a-gltf-model>
+
+      <a-gltf-model
+        src="#dubaiClouds"
+        position="-70 10 -120"
+        scale="2.2 2.2 2.2"
+        rotation="0 30 0"
+      ></a-gltf-model>
+      <a-gltf-model
+        src="#dubaiClouds"
+        position="70 10 -120"
+        scale="2.2 2.2 2.2"
+        rotation="0 80 0"
+      ></a-gltf-model>
+
+      <a-gltf-model
+        src="#cloud"
+        position="-90 12 -140"
+        scale="3.5 3.5 3.5"
+        rotation="0 60 0"
+      ></a-gltf-model>
+      <a-gltf-model
+        src="#cloudTest"
+        position="-55 11 -155"
+        scale="3.5 3.5 3.5"
+        rotation="0 160 0"
+      ></a-gltf-model>
+      <a-gltf-model
+        src="#cloud"
+        position="-20 13 -165"
+        scale="4 4 4"
+        rotation="0 260 0"
+      ></a-gltf-model>
+      <a-gltf-model
+        src="#cloudTest"
+        position="20 13 -165"
+        scale="4 4 4"
+        rotation="0 340 0"
+      ></a-gltf-model>
+      <a-gltf-model
+        src="#cloud"
+        position="55 11 -155"
+        scale="3.5 3.5 3.5"
+        rotation="0 100 0"
+      ></a-gltf-model>
+      <a-gltf-model
+        src="#cloudTest"
+        position="90 12 -140"
+        scale="3.5 3.5 3.5"
+        rotation="0 200 0"
+      ></a-gltf-model>
+      <a-gltf-model
+        src="#cloud"
+        position="-110 14 -190"
+        scale="4.5 4.5 4.5"
+        rotation="0 20 0"
+      ></a-gltf-model>
+      <a-gltf-model
+        src="#cloudTest"
+        position="110 14 -190"
+        scale="4.5 4.5 4.5"
+        rotation="0 180 0"
+      ></a-gltf-model>
+      <a-gltf-model
+        src="#cloud"
+        position="-65 15 -210"
+        scale="4.5 4.5 4.5"
+        rotation="0 90 0"
+      ></a-gltf-model>
+      <a-gltf-model
+        src="#cloudTest"
+        position="65 15 -210"
+        scale="4.5 4.5 4.5"
+        rotation="0 270 0"
+      ></a-gltf-model>
+      <a-gltf-model
+        src="#cloud"
+        position="0 16 -220"
+        scale="5 5 5"
+        rotation="0 160 0"
+      ></a-gltf-model>
+    </a-scene>
+  </body>
+</html>
